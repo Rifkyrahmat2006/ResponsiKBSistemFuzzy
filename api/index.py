@@ -8,6 +8,10 @@ static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'stat
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 def calculate_fuzzy_price(berat_val, bersih_val):
+    import numpy as np
+    import skfuzzy as fuzz
+    from skfuzzy import control as ctrl
+    
     # Definisi Variabel Fuzzy
     berat = ctrl.Antecedent(np.arange(0, 11, 1), 'berat')
     kebersihan = ctrl.Antecedent(np.arange(0, 101, 1), 'kebersihan')
