@@ -1,15 +1,27 @@
 import os
 import sys
+import types
 
-# Fix for Python 3.12 where distutils is removed
+# Fix for Python 3.12 where distutils and imp are removed
 try:
     import distutils
 except ImportError:
     try:
         import setuptools
-        # This usually handles the mapping, but we can be explicit
     except ImportError:
         pass
+
+try:
+    import imp
+except ImportError:
+    # Create a dummy imp module for backward compatibility
+    imp_module = types.ModuleType('imp')
+    sys.modules['imp'] = imp_module
+    # Add common functions used by older packages
+    def find_module(name, path=None): return None
+    def load_module(name, file, pathname, description): return None
+    imp_module.find_module = find_module
+    imp_module.load_module = load_module
 
 from flask import Flask, render_template, request
 
