@@ -233,7 +233,7 @@
 
             {% if result is not none %}
             <div class="mt-8 relative overflow-hidden rounded-2xl animate-fade-in-up" style="animation-delay: 0.2s;">
-                {% if result == 'Error' %}
+                {% if result is string and result.startswith('Error') %}
                 <div class="bg-red-50 p-6 border-l-4 border-red-500">
                     <div class="flex">
                         <div class="flex-shrink-0">
@@ -244,7 +244,8 @@
                         <div class="ml-3">
                             <h3 class="text-sm font-medium text-red-800">Error dalam perhitungan</h3>
                             <div class="mt-2 text-sm text-red-700">
-                                <p>Pastikan semua input terisi dengan benar.</p>
+                                <p>{{ result }}</p>
+                                <p class="mt-1 text-xs opacity-70">Pastikan semua input terisi dengan benar atau cek log Vercel.</p>
                             </div>
                         </div>
                     </div>

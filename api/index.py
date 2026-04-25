@@ -54,6 +54,8 @@ def index(path):
             input_data = {'berat': b, 'kebersihan': k, 'material': m}
             res = calculate_fuzzy_price(b, k)
         except Exception as e:
-            print("Error:", e)
-            res = 'Error'
+            import traceback
+            error_details = traceback.format_exc()
+            print("Error Details:", error_details)
+            res = f"Error: {str(e)}"
     return render_template('index.html', result=res, input_data=input_data)
