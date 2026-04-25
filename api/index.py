@@ -1,8 +1,5 @@
 import os
 from flask import Flask, render_template, request
-import numpy as np
-import skfuzzy as fuzz
-from skfuzzy import control as ctrl
 
 # Tentukan folder template dan static secara absolut
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
@@ -37,8 +34,9 @@ def calculate_fuzzy_price(berat_val, bersih_val):
     
     return int(pricing.output['harga'])
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
+@app.route('/', defaults={'path': ''}, methods=['GET', 'POST'])
+@app.route('/<path:path>', methods=['GET', 'POST'])
+def index(path):
     res = None
     if request.method == 'POST':
         try:
