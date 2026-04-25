@@ -25,29 +25,35 @@ def calculate_fuzzy_price(berat_val, bersih_val):
     harga['mahal'] = fuzz.trimf(harga.universe, [7000, 10000, 10000])
 
     # Rules Sederhana
-    rule1 = ctrl.Rule(berat['good'] & kebersihan['good'], harga['mahal'])
-    rule2 = ctrl.Rule(kebersihan['poor'], harga['murah'])
+    rule1 = ctrl.Rule(kebersihan['poor'] | berat['poor'], harga['murah'])
+    rule2 = ctrl.Rule(kebersihan['average'] | berat['average'], harga['standar'])
+    rule3 = ctrl.Rule(kebersihan['good'] & berat['good'], harga['mahal'])
     
     # Simulation
-    pricing_ctrl = ctrl.ControlSystem([rule1, rule2])
+    pricing_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
     pricing = ctrl.ControlSystemSimulation(pricing_ctrl)
 
     pricing.input['berat'] = berat_val
     pricing.input['kebersihan'] = bersih_val
-    pricing.compute()
-    
-    return int(pricing.output['harga'])
+    try:
+        pricing.compute()
+        return int(pricing.output['harga'])
+    except:
+        return 5000 # default fallback jika fuzzy tidak menghasilkan output
 
 @app.route('/', defaults={'path': ''}, methods=['GET', 'POST'])
 @app.route('/<path:path>', methods=['GET', 'POST'])
 def index(path):
     res = None
+    input_data = None
     if request.method == 'POST':
         try:
-            b = float(request.form.get('berat', 0))
-            k = float(request.form.get('kebersihan', 0))
+            b = float(request.form.get('berat', 0.5))
+            k = float(request.form.get('kebersihan', 50))
+            m = int(request.form.get('material', 1))
+            input_data = {'berat': b, 'kebersihan': k, 'material': m}
             res = calculate_fuzzy_price(b, k)
-        except (ValueError, TypeError, Exception) as e:
+        except Exception as e:
             print("Error:", e)
-            res = "Input tidak valid atau error sistem"
-    return render_template('index.html', result=res)
+            res = 'Error'
+    return render_template('index.html', result=res, input_data=input_data)
