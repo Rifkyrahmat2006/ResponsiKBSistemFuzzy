@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Trash Classifier | AI Valuator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        eco: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8fafc;
+            background-image: radial-gradient(circle at top right, #d1fae5 0%, transparent 40%),
+                              radial-gradient(circle at bottom left, #e0e7ff 0%, transparent 40%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05);
+        }
+        
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.4);
+            transition: transform 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+        
+        /* Custom Radio Cards */
+        .radio-card-input:checked + .radio-card {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+            box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.15);
+        }
+        .radio-card-input:checked + .radio-card .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-eco-200 selection:text-eco-900 flex flex-col md:flex-row min-h-screen">
+
+    <!-- Left side (Hero/Info) -->
+    <div class="w-full md:w-5/12 lg:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-eco-900 to-eco-700 -z-10 text-white rounded-br-[4rem] md:rounded-br-[0] md:rounded-r-[4rem] shadow-2xl"></div>
+        
+        <!-- Decorative pattern -->
+        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#ffffff 2px, transparent 2px); background-size: 30px 30px;"></div>
+
+        <div class="relative z-10 animate-fade-in-up">
+            <div class="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full mb-6">
+                <svg class="w-5 h-5 text-eco-100" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <span class="text-sm font-semibold tracking-wider text-eco-50 uppercase">Powered by Fuzzy Logic</span>
+            </div>
+            
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight mb-6">
+                Smart Trash <br><span class="text-eco-200">Classifier</span>
+            </h1>
+            <p class="text-eco-50 text-lg mb-8 max-w-md leading-relaxed">
+                Platform valuasi sampah anorganik otomatis. Dapatkan estimasi harga beli yang adil berdasarkan berat, kebersihan, dan material.
+            </p>
+            
+            <div class="flex items-center space-x-4 text-eco-100 text-sm font-medium">
+                <div class="flex items-center"><svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Objektif</div>
+                <div class="flex items-center"><svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Transparan</div>
+                <div class="flex items-center"><svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Adil</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right side (Form) -->
+    <div class="w-full md:w-7/12 lg:w-1/2 p-6 md:p-12 lg:p-16 flex items-center justify-center">
+        <div class="w-full max-w-xl glass-panel rounded-3xl p-8 animate-fade-in-up" style="animation-delay: 0.1s;">
+            
+            <form action="/" method="POST" class="space-y-8">
+                
+                <!-- Input 1: Berat -->
+                <div>
+                    <div class="flex justify-between items-end mb-2">
+                        <label for="berat" class="block text-sm font-semibold text-slate-700">Berat Sampah</label>
+                        <span class="text-2xl font-heading font-bold text-eco-600"><span id="beratValue">{{ input_data.berat if input_data else '0.5' }}</span> <span class="text-sm font-medium text-slate-400">kg</span></span>
+                    </div>
+                    <div class="relative pt-1">
+                        <input type="range" name="berat" id="berat" min="0.1" max="10" step="0.1" value="{{ input_data.berat if input_data else '0.5' }}" 
+                            oninput="document.getElementById('beratValue').textContent = this.value">
+                        <div class="flex justify-between text-xs text-slate-400 mt-2 font-medium">
+                            <span>0 kg</span>
+                            <span>5 kg</span>
+                            <span>10 kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input 2: Kebersihan -->
+                <div>
+                    <div class="flex justify-between items-end mb-2">
+                        <label for="kebersihan" class="block text-sm font-semibold text-slate-700">Tingkat Kebersihan</label>
+                        <span class="text-2xl font-heading font-bold text-eco-600"><span id="kebersihanValue">{{ input_data.kebersihan if input_data else '50' }}</span><span class="text-sm font-medium text-slate-400">%</span></span>
+                    </div>
+                    <div class="relative pt-1">
+                        <input type="range" name="kebersihan" id="kebersihan" min="0" max="100" step="1" value="{{ input_data.kebersihan if input_data else '50' }}"
+                            oninput="document.getElementById('kebersihanValue').textContent = this.value">
+                        <div class="flex justify-between text-xs text-slate-400 mt-2 font-medium">
+                            <span>Kotor (0%)</span>
+                            <span>Sangat Bersih (100%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input 3: Material -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-3">Jenis Material</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <!-- Option 1 -->
+                        <label class="cursor-pointer relative">
+                            <input type="radio" name="material" value="1" class="sr-only radio-card-input" {% if not input_data or input_data.material == 1 %}checked{% endif %}>
+                            <div class="radio-card p-4 rounded-xl border-2 border-slate-200 hover:border-eco-300 transition-all duration-200 h-full flex flex-col justify-between">
+                                <div class="mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center mb-2">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </div>
+                                    <h3 class="font-semibold text-slate-800 text-sm">Plastik Rendah</h3>
+                                </div>
+                                <p class="text-xs text-slate-500">Kresek, Sedotan</p>
+                                
+                                <div class="check-icon absolute top-4 right-4 text-eco-500 opacity-0 transform scale-50 transition-all duration-200">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <!-- Option 2 -->
+                        <label class="cursor-pointer relative">
+                            <input type="radio" name="material" value="2" class="sr-only radio-card-input" {% if input_data and input_data.material == 2 %}checked{% endif %}>
+                            <div class="radio-card p-4 rounded-xl border-2 border-slate-200 hover:border-eco-300 transition-all duration-200 h-full flex flex-col justify-between">
+                                <div class="mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center mb-2">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                    </div>
+                                    <h3 class="font-semibold text-slate-800 text-sm">Plastik Tinggi</h3>
+                                </div>
+                                <p class="text-xs text-slate-500">Botol PET, HDPE</p>
+                                
+                                <div class="check-icon absolute top-4 right-4 text-eco-500 opacity-0 transform scale-50 transition-all duration-200">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <!-- Option 3 -->
+                        <label class="cursor-pointer relative">
+                            <input type="radio" name="material" value="3" class="sr-only radio-card-input" {% if input_data and input_data.material == 3 %}checked{% endif %}>
+                            <div class="radio-card p-4 rounded-xl border-2 border-slate-200 hover:border-eco-300 transition-all duration-200 h-full flex flex-col justify-between">
+                                <div class="mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center mb-2">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                                    </div>
+                                    <h3 class="font-semibold text-slate-800 text-sm">Logam / Kaleng</h3>
+                                </div>
+                                <p class="text-xs text-slate-500">Aluminium, Besi</p>
+                                
+                                <div class="check-icon absolute top-4 right-4 text-eco-500 opacity-0 transform scale-50 transition-all duration-200">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-eco-600 hover:bg-eco-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg shadow-eco-500/30 transition-all duration-200 transform hover:-translate-y-1 flex justify-center items-center group">
+                        <span>Hitung Estimasi Harga</span>
+                        <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </div>
+            </form>
+
+            {% if result is not none %}
+            <div class="mt-8 relative overflow-hidden rounded-2xl animate-fade-in-up" style="animation-delay: 0.2s;">
+                {% if result == 'Error' %}
+                <div class="bg-red-50 p-6 border-l-4 border-red-500">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">Error dalam perhitungan</h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <p>Pastikan semua input terisi dengan benar.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="bg-gradient-to-r from-eco-900 to-eco-700 p-6 sm:p-8 text-white relative">
+                    <!-- Glow effect -->
+                    <div class="absolute -top-24 -right-24 w-48 h-48 bg-eco-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse-slow"></div>
+                    
+                    <p class="text-eco-100 font-medium text-sm mb-1">Estimasi Harga Beli</p>
+                    <div class="flex items-baseline space-x-2">
+                        <span class="text-2xl font-semibold text-eco-200">Rp</span>
+                        <span class="text-4xl md:text-5xl font-heading font-bold tracking-tight">
+                            {{ "{:,.0f}".format(result).replace(',', '.') }}
+                        </span>
+                        <span class="text-eco-200 font-medium">/ kg</span>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-white/20 flex justify-between items-center text-sm">
+                        <div class="text-eco-100">
+                            Total untuk <span class="font-bold text-white">{{ input_data.berat }} kg</span>
+                        </div>
+                        <div class="font-heading font-bold text-lg text-white">
+                            Rp {{ "{:,.0f}".format(result * input_data.berat).replace(',', '.') }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+        </div>
+    </div>
+
+</body>
+</html>
