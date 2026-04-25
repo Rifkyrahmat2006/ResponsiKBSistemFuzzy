@@ -1,9 +1,14 @@
+import os
 from flask import Flask, render_template, request
 import numpy as np
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
 
-app = Flask(__name__)
+# Tentukan folder template dan static secara absolut
+template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
+static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
+
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 def calculate_fuzzy_price(berat_val, bersih_val):
     # Definisi Variabel Fuzzy
@@ -36,7 +41,11 @@ def calculate_fuzzy_price(berat_val, bersih_val):
 def index():
     res = None
     if request.method == 'POST':
-        b = float(request.form.get('berat'))
-        k = float(request.form.get('kebersihan'))
-        res = calculate_fuzzy_price(b, k)
+        try:
+            b = float(request.form.get('berat', 0))
+            k = float(request.form.get('kebersihan', 0))
+            res = calculate_fuzzy_price(b, k)
+        except (ValueError, TypeError, Exception) as e:
+            print("Error:", e)
+            res = "Input tidak valid atau error sistem"
     return render_template('index.html', result=res)
