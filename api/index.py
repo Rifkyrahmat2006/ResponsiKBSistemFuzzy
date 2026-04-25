@@ -1,4 +1,16 @@
 import os
+import sys
+
+# Fix for Python 3.12 where distutils is removed
+try:
+    import distutils
+except ImportError:
+    try:
+        import setuptools
+        # This usually handles the mapping, but we can be explicit
+    except ImportError:
+        pass
+
 from flask import Flask, render_template, request
 
 # Tentukan folder template dan static secara absolut
