@@ -37,7 +37,7 @@ static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'stat
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
-def calculate_fuzzy_price(berat_val, bersih_val):
+def calculate_fuzzy_price(berat_val, bersih_val, material_val):
     import numpy as np
     import skfuzzy as fuzz
     from skfuzzy import control as ctrl
@@ -45,31 +45,44 @@ def calculate_fuzzy_price(berat_val, bersih_val):
     # Definisi Variabel Fuzzy
     berat = ctrl.Antecedent(np.arange(0, 11, 1), 'berat')
     kebersihan = ctrl.Antecedent(np.arange(0, 101, 1), 'kebersihan')
-    harga = ctrl.Consequent(np.arange(1000, 10001, 100), 'harga')
+    material = ctrl.Antecedent(np.arange(1, 4, 1), 'material')
+    harga = ctrl.Consequent(np.arange(1000, 15001, 100), 'harga')
 
     # Membership Functions
     berat.automf(3) # poor, average, good
     kebersihan.automf(3)
-    harga['murah'] = fuzz.trimf(harga.universe, [1000, 2000, 5000])
-    harga['standar'] = fuzz.trimf(harga.universe, [4000, 6000, 8000])
-    harga['mahal'] = fuzz.trimf(harga.universe, [7000, 10000, 10000])
+    
+    # Material membership
+    material['rendah'] = fuzz.trimf(material.universe, [1, 1, 2])
+    material['tinggi'] = fuzz.trimf(material.universe, [1, 2, 3])
+    material['logam'] = fuzz.trimf(material.universe, [2, 3, 3])
 
-    # Rules Sederhana
+    harga['murah'] = fuzz.trimf(harga.universe, [1000, 3000, 5000])
+    harga['standar'] = fuzz.trimf(harga.universe, [4000, 7000, 10000])
+    harga['mahal'] = fuzz.trimf(harga.universe, [9000, 12000, 15000])
+
+    # Rules yang lebih kompleks mencakup material
     rule1 = ctrl.Rule(kebersihan['poor'] | berat['poor'], harga['murah'])
-    rule2 = ctrl.Rule(kebersihan['average'] | berat['average'], harga['standar'])
-    rule3 = ctrl.Rule(kebersihan['good'] & berat['good'], harga['mahal'])
+    rule2 = ctrl.Rule(kebersihan['average'] & material['rendah'], harga['murah'])
+    rule3 = ctrl.Rule(kebersihan['average'] & (material['tinggi'] | material['logam']), harga['standar'])
+    rule4 = ctrl.Rule(kebersihan['good'] & berat['good'] & material['logam'], harga['mahal'])
+    rule5 = ctrl.Rule(kebersihan['good'] & material['tinggi'], harga['mahal'])
     
     # Simulation
-    pricing_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
+    pricing_ctrl = ctrl.ControlSystem([rule1, rule2, rule3, rule4, rule5])
     pricing = ctrl.ControlSystemSimulation(pricing_ctrl)
 
     pricing.input['berat'] = berat_val
     pricing.input['kebersihan'] = bersih_val
+    pricing.input['material'] = material_val
+    
     try:
         pricing.compute()
         return int(pricing.output['harga'])
     except:
-        return 5000 # default fallback jika fuzzy tidak menghasilkan output
+        # Fallback dinamis berdasarkan material jika compute gagal
+        base_prices = {1: 2000, 2: 5000, 3: 8000}
+        return base_prices.get(material_val, 5000)
 
 @app.route('/', defaults={'path': ''}, methods=['GET', 'POST'])
 @app.route('/<path:path>', methods=['GET', 'POST'])
@@ -82,7 +95,7 @@ def index(path):
             k = float(request.form.get('kebersihan', 50))
             m = int(request.form.get('material', 1))
             input_data = {'berat': b, 'kebersihan': k, 'material': m}
-            res = calculate_fuzzy_price(b, k)
+            res = calculate_fuzzy_price(b, k, m)
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
