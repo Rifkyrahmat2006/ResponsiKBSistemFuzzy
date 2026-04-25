@@ -23,6 +23,12 @@ except ImportError:
     imp_module.find_module = find_module
     imp_module.load_module = load_module
 
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+except ImportError:
+    pass
+
 from flask import Flask, render_template, request
 
 # Tentukan folder template dan static secara absolut
